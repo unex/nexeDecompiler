@@ -43,7 +43,7 @@ if __name__ == "__main__":
     with open(source_path, 'rb') as fs:
         files = decompile(fs)
 
-        source = Path(source_path.name)
+        source = Path(f'{source_path.name}_decompiled')
 
         for path, data in files.items():
             path = path.replace("..\\", "").replace("\\", "/")
