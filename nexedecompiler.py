@@ -46,7 +46,9 @@ if __name__ == "__main__":
         source = Path(f'{source_path.name}_decompiled')
 
         for path, data in files.items():
-            path = path.replace("..\\", "").replace("\\", "/")
+            path = path.replace("..\\", "") \
+                       .replace("../", "") \
+                       .replace("\\", "/")
             path = PurePath(path)
 
             fullpath = source.joinpath(path)
