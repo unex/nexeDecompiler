@@ -11,16 +11,7 @@ RE_RESOURCES = re.compile(r"process\.__nexe = (.*);\n")
 def slice(str, i):
     return str[:i], str[i:]
 
-def decompile(fs):
-    file = fs.read()
-
-    # perhaps we make this dynamic in case some goofy goober
-    # decides to add erroneous padding to the end of their file?
-    sentinel_bytes = file[-32:-16]
-
-    if sentinel_bytes != SENTINEL:
-        raise TypeError('not a nexe binary') # is there a more fitting exception than this?
-
+def unpack(file):
     code_size, bundle_size = map(int, struct.unpack('<dd', file[-16:]))
 
     start = len(file) - code_size - bundle_size - len(SENTINEL) - 16 # code, bundle, sentinel, lengths
@@ -31,6 +22,20 @@ def decompile(fs):
 
     if _resources := RE_RESOURCES.findall(code.decode()):
         resources = json.loads(_resources[0])["resources"]
+
+    return node, code, bundle, resources
+
+def decompile(fs):
+    file = fs.read()
+
+    # perhaps we make this dynamic in case some goofy goober
+    # decides to add erroneous padding to the end of their file?
+    sentinel_bytes = file[-32:-16]
+
+    if sentinel_bytes != SENTINEL:
+        raise TypeError('not a nexe binary') # is there a more fitting exception than this?
+
+    node, code, bundle, resources = unpack(file)
 
     files = {res[0]: bundle[res[1][0]: res[1][0] + res[1][1]] for res in resources.items()} # unreadable one-liner, fuck you future me!
 
