@@ -28,18 +28,18 @@ class Pkg(AbstractCompiler):
         return re.search(rb"pkg/prelude/bootstrap.js", data)
 
     def decompile(self):
-        payload_pos_m = re.search(rb"var PAYLOAD_POSITION = '(\d*).*'", self.__data)
-        payload_len_m = re.search(rb"var PAYLOAD_SIZE = '(\d*).*'", self.__data)
-        prelude_pos_m = re.search(rb"var PRELUDE_POSITION = '(\d*).*'", self.__data)
-        prelude_len_m = re.search(rb"var PRELUDE_SIZE = '(\d*).*'", self.__data)
+        payload_pos_m = re.search(rb"var PAYLOAD_POSITION = '(\d*).*'", self._data)
+        payload_len_m = re.search(rb"var PAYLOAD_SIZE = '(\d*).*'", self._data)
+        prelude_pos_m = re.search(rb"var PRELUDE_POSITION = '(\d*).*'", self._data)
+        prelude_len_m = re.search(rb"var PRELUDE_SIZE = '(\d*).*'", self._data)
 
         payload_pos = int(payload_pos_m.group(1))
         payload_len = int(payload_len_m.group(1))
         prelude_pos = int(prelude_pos_m.group(1))
         prelude_len = int(prelude_len_m.group(1))
 
-        payload = self.__data[payload_pos : payload_pos + payload_len]
-        prelude = self.__data[prelude_pos : prelude_pos + prelude_len]
+        payload = self._data[payload_pos : payload_pos + payload_len]
+        prelude = self._data[prelude_pos : prelude_pos + prelude_len]
 
         prelude_data = re.search(
             rb"\/\/# sourceMappingURL=common\.js\.map\n\},\n(?P<virtfs>\{.*\})\n,\n(?P<entrypoint>.*)\n,\n(?P<symlinks>\{.*\})\n,\n(?P<_dict>\{.*\})\n,\n(?P<docompress>\d*)\n\);",
@@ -58,7 +58,7 @@ class Pkg(AbstractCompiler):
 
         self.files = {}
 
-        for path, slices in virtfs.items():
+        for path, slices in self.virtfs.items():
             for typ, (pos, length) in slices.items():
                 path = path.replace("C:\\snapshot\\", "")
 
